@@ -1,5 +1,5 @@
 /**
- * Framework7 Vue 2.0.10
+ * Framework7 Vue 2.0.11
  * Build full featured iOS & Android apps using Framework7 & Vue
  * http://framework7.io/vue/
  *
@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: February 19, 2018
+ * Released on: March 11, 2018
  */
 
 const Utils = {
@@ -90,7 +90,7 @@ var VueRouter = {
         if (
           vueComponent.$vnode &&
           vueComponent.$vnode.tag &&
-          vueComponent.$vnode.tag.indexOf('f7-view') >= 0 &&
+          (vueComponent.$vnode.tag.indexOf('f7-view') >= 0 || vueComponent.$vnode.tag.indexOf('eb-view') >= 0) &&
           vueComponent.pages
         ) {
           routerVue = vueComponent;
@@ -738,6 +738,12 @@ const ActionsProps = Utils.extend(
       return c('div', {
         staticClass: 'actions-modal',
         class: self.classes,
+        on: {
+          'actions:open': self.onOpen,
+          'actions:opened': self.onOpened,
+          'actions:close': self.onClose,
+          'actions:closed': self.onClosed,
+        },
       }, self.$slots.default);
     },
     watch: {
@@ -1479,7 +1485,7 @@ const FabProps = Utils.extend(
       if (self.$slots.default) {
         for (let i = 0; i < self.$slots.default.length; i += 1) {
           const child = self.$slots.default[i];
-          if (child.tag.indexOf('fab-buttons') >= 0) {
+          if (child.tag && child.tag.indexOf('fab-buttons') >= 0) {
             fabChildren.push(child);
           } else {
             linkChildren.push(child);
@@ -1488,8 +1494,10 @@ const FabProps = Utils.extend(
       }
 
       const linkEl = c('a', {
-        on: {
+        attrs: {
           href,
+        },
+        on: {
           click: self.onClick,
         },
       }, linkChildren);
@@ -4762,120 +4770,120 @@ const SegmentedProps = Utils.extend({
     },
   };
 
-const SheetProps = Utils.extend(
-    {
-      opened: Boolean,
-      backdrop: Boolean,
-    },
-    Mixins.colorProps
-  );
+const SheetProps = Utils.extend({
+    opened: Boolean,
+    backdrop: Boolean,
+  },
+  Mixins.colorProps
+);
 
-  var sheet = {
-    name: 'f7-sheet',
-    render(c) {
-      const self = this;
-      const fixedList = [];
-      const staticList = [];
-      const fixedTags = ('navbar toolbar tabbar subnavbar searchbar messagebar fab').split(' ');
+var sheet = {
+  name: 'f7-sheet',
+  render(c) {
+    const self = this;
+    const fixedList = [];
+    const staticList = [];
+    const fixedTags = ('navbar toolbar tabbar subnavbar searchbar messagebar fab').split(' ');
 
-      let tag;
-      let child;
+    let tag;
+    let child;
 
-      if (self.$slots.default) {
-        for (let i = 0; i < self.$slots.default.length; i += 1) {
-          child = self.$slots.default[i];
-          tag = child.tag;
-          if (!tag) {
-            staticList.push(child);
-            continue; // eslint-disable-line
-          }
-          let isFixed = false;
-          for (let j = 0; j < fixedTags.length; j += 1) {
-            if (tag.indexOf(fixedTags[j]) >= 0) {
-              isFixed = true;
-            }
-          }
-          if (isFixed) fixedList.push(child);
-          else staticList.push(child);
+    if (self.$slots.default) {
+      for (let i = 0; i < self.$slots.default.length; i += 1) {
+        child = self.$slots.default[i];
+        tag = child.tag;
+        if (!tag) {
+          staticList.push(child);
+          continue; // eslint-disable-line
         }
+        let isFixed = false;
+        for (let j = 0; j < fixedTags.length; j += 1) {
+          if (tag.indexOf(fixedTags[j]) >= 0) {
+            isFixed = true;
+          }
+        }
+        if (isFixed) fixedList.push(child);
+        else staticList.push(child);
       }
+    }
 
-      const innerEl = c('div', {
-        staticClass: 'sheet-modal-inner',
-      }, staticList);
+    const innerEl = c('div', {
+      staticClass: 'sheet-modal-inner',
+    }, staticList);
 
-      return c('div', {
-        class: self.classes,
-        staticClass: 'sheet-modal',
-        on: {
-          'sheet:open': self.onOpen,
-          'sheet:opened': self.onOpened,
-          'sheet:close': self.onClose,
-          'sheet:closed': self.onClosed,
-        },
-      }, [fixedList, innerEl]);
-    },
-    watch: {
-      opened(opened) {
-        const self = this;
-        if (!self.f7Sheet) return;
-        if (opened) {
-          self.f7Sheet.open();
-        } else {
-          self.f7Sheet.close();
-        }
+    return c('div', {
+      class: self.classes,
+      staticClass: 'sheet-modal',
+      on: {
+        'sheet:open': self.onOpen,
+        'sheet:opened': self.onOpened,
+        'sheet:close': self.onClose,
+        'sheet:closed': self.onClosed,
       },
-    },
-    props: SheetProps,
-    computed: {
-      classes() {
-        const self = this;
-        return Mixins.colorClasses(self);
-      },
-    },
-    beforeDestroy() {
+    }, [fixedList, innerEl]);
+  },
+  watch: {
+    opened(opened) {
       const self = this;
-      if (self.f7Sheet) self.f7Sheet.destroy();
+      if (!self.f7Sheet) return;
+      if (opened) {
+        self.f7Sheet.open();
+      } else {
+        self.f7Sheet.close();
+      }
     },
-    methods: {
-      onOpen(event) {
-        this.$emit('sheet:open', event);
-      },
-      onOpened(event) {
-        this.$emit('sheet:opened', event);
-      },
-      onClose(event) {
-        this.$emit('sheet:close', event);
-      },
-      onClosed(event) {
-        this.$emit('sheet:closed', event);
-      },
-      open(animate) {
-        const self = this;
-        if (!self.$f7) return undefined;
-        return self.$f7.sheet.open(self.$el, animate);
-      },
-      close(animate) {
-        const self = this;
-        if (!self.$f7) return undefined;
-        return self.$f7.sheet.close(self.$el, animate);
-      },
-      onF7Ready() {
-        const self = this;
-        let backdrop = self.backdrop;
-        if (typeof self.$options.propsData.backdrop === 'undefined') {
-          backdrop = self.$theme.md;
-        }
-        self.f7Sheet = self.$f7.sheet.create({
-          el: self.$el,
-          backdrop,
-        });
-        if (self.opened) {
-          self.f7Sheet.open(false);
-        }
-      },
+  },
+  props: SheetProps,
+  computed: {
+    classes() {
+      const self = this;
+      return Mixins.colorClasses(self);
     },
-  };
+  },
+  beforeDestroy() {
+    const self = this;
+    if (self.f7Sheet) self.f7Sheet.destroy();
+  },
+  methods: {
+    onOpen(event) {
+      this.$emit('sheet:open', event);
+    },
+    onOpened(event) {
+      this.$emit('sheet:opened', event);
+    },
+    onClose(event) {
+      this.$emit('sheet:close', event);
+    },
+    onClosed(event) {
+      this.$emit('sheet:closed', event);
+    },
+    open(animate) {
+      const self = this;
+      if (!self.$f7) return undefined;
+      return self.$f7.sheet.open(self.$el, animate);
+    },
+    close(animate) {
+      const self = this;
+      if (!self.$f7) return undefined;
+      return self.$f7.sheet.close(self.$el, animate);
+    },
+    onF7Ready() {
+      const self = this;
+      let backdrop = self.backdrop;
+      if (self.$options.propsData.backdrop === undefined) {
+        const app = self.$f7;
+        backdrop = app.params.sheet && app.params.sheet.backdrop !== undefined ? app.params.sheet.backdrop : self.$theme.md;
+      }
+      self.f7Sheet = self.$f7.sheet.create({
+        el: self.$el,
+        backdrop,
+      });
+      if (self.opened) {
+        self.f7Sheet.open(false);
+      }
+    },
+  },
+};
 
 var statusbar = {
 render: function(){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"statusbar",class:_vm.classes})},
