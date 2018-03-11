@@ -13,7 +13,7 @@ export default {
         if (
           vueComponent.$vnode &&
           vueComponent.$vnode.tag &&
-          vueComponent.$vnode.tag.indexOf('f7-view') >= 0 &&
+          (vueComponent.$vnode.tag.indexOf('f7-view') >= 0 || vueComponent.$vnode.tag.indexOf('eb-view') >= 0) &&
           vueComponent.pages
         ) {
           routerVue = vueComponent;
