@@ -1,5 +1,5 @@
 /**
- * Framework7 Vue 2.0.11
+ * Framework7 Vue 2.0.12
  * Build full featured iOS & Android apps using Framework7 & Vue
  * http://framework7.io/vue/
  *
@@ -7,7 +7,7 @@
  *
  * Released under the MIT License
  *
- * Released on: March 11, 2018
+ * Released on: March 25, 2018
  */
 
 const Utils = {
